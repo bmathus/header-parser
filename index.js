@@ -4,6 +4,7 @@
 // init project
 require('dotenv').config();
 const express = require('express');
+const path = require('path');
 const app = express();
 
 // enable CORS (https://en.wikipedia.org/wiki/Cross-origin_resource_sharing)
@@ -11,8 +12,10 @@ const app = express();
 const cors = require('cors');
 app.use(cors({ optionsSuccessStatus: 200 })); // some legacy browsers choke on 204
 
+app.set('trust proxy', true);
+
 // http://expressjs.com/en/starter/static-files.html
-app.use(express.static('public'));
+app.use(express.static(path.join(__dirname, 'public')));
 
 // http://expressjs.com/en/starter/basic-routing.html
 app.get('/', function (req, res) {
@@ -20,8 +23,16 @@ app.get('/', function (req, res) {
 });
 
 // your first API endpoint...
-app.get('/api/hello', function (req, res) {
-  res.json({ greeting: 'hello API' });
+app.get('/api/whoami', function (req, res) {
+  res.json({
+    ip: req.ip,
+    lamnguage: req.get('Accept-Language'),
+    software: req.get('User-Agent'),
+  });
+});
+
+app.use((req, res) => {
+  res.status(404).json({ message: 'Not Found' });
 });
 
 // listen for requests :)
